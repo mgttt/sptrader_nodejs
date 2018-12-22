@@ -1,0 +1,14 @@
+build
+node-v7.8.0
+Log
+product
+*.log
+*.lck
+node_modules/*
+core
+tmp
+.node-persist
+demo_client/node_modules
+test_dama.js
+*.gz
+package-lock.json
