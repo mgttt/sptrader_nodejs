@@ -2,8 +2,10 @@ export TZ=Asia/Hong_Kong
 echo run_api_server_in_docer.sh.date=`date`
 
 ulimit -c unlimited && ulimit -a && . /node_env.sh && \
+npm install segfault-handler q && \
 export PATH=/$NODE_VERSION/bin:$PATH && LD_LIBRARY_PATH=./ LD_PRELOAD=./libapiwrapper.so \
 node --expose_gc test_version.js $*
+
 #node test_ver.js $*
 
 # self global.gc():
