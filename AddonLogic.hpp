@@ -171,10 +171,12 @@ inline v8::Handle<v8::Value> json_parse(v8::Isolate* isolate, std::string const&
 	v8::Local<v8::Value> value = v8::String::NewFromUtf8(isolate, str.data(),
 			v8::String::kNormalString, static_cast<int>(str.size()));
 
-	//NOTES: TODO try-catch in new nodejs....
-	//v8::TryCatch try_catch;
+	//NOTES: TODO try-catch replace in new nodejs....
+//TODO if NODE<10...
+	v8::TryCatch try_catch;
 	v8::Local<v8::Value> result = parse->Call(theJSON, 1, &value);
-	//if (try_catch.HasCaught()) { result = try_catch.Exception(); }
+//TODO if NODE<10...
+	if (try_catch.HasCaught()) { result = try_catch.Exception(); }
 
 	return scope.Escape(result);
 }
