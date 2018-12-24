@@ -15,7 +15,8 @@ pwd
 
 if [ ! -n "$DKR_IMAGE" ]; then
 	#DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu_python:18.04
-	DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu_python
+	#DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu_python
+	DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu_python:16.04
 	echo DKR_IMAGE default to $DKR_IMAGE
 fi
 

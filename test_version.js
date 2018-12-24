@@ -1,4 +1,7 @@
+const logger=console;
+logger.log("before load SegfaultHandler");
 var SegfaultHandler = require('segfault-handler');
+logger.log("after load SegfaultHandler");
 
 SegfaultHandler.registerHandler("crash1.log"); // With no argument, SegfaultHandler will generate a generic log file name
 
@@ -14,13 +17,15 @@ function copy_o2o(o1,o2){for(var k in o2){o1[k]=o2[k]}return o1}
 const argv2o=o=>o.reduce((r,e)=>(m=e.match(/^(\/|--?)([a-zA-Z0-9-_]*)="?(.*)"?$/))&&(r[m[2]]=m[3])&&r||r,{});
 
 const os=require('os');
-const logger=console;
 
 var argo={};
 copy_o2o(argo,argv2o(process.argv));
 //logger.log('argo=',argo);
 
 var q_sptrader = require('./q_sptrader')();
+
+//test if any segfault
+const crypto=require('crypto');
 
 var { host, port, license, app_id, user_id, password, host_id } = argo;
 

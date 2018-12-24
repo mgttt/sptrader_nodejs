@@ -3,7 +3,7 @@
 		"target_name":"SpTrader" ,'sources': [ 'Addon.cc','AddonLogic.hpp' ]
 			,"include_dirs": [ "include" ]
 			,'libraries': ['-L.','-lapiwrapper']
-
+			,'libraries_test_static_but_failed': ['-L.','-Wl,-Bstatic -l:libapiwrapper.so']
 			,'xcode_settings': {
 				'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
 					'OTHER_CFLAGS': [ '-fexceptions', '-frtti', ],

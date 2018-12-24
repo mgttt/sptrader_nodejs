@@ -16,6 +16,7 @@ module.exports = function(Application){
 
 			avatar.call=function(m,p){
 				var dfr=Q.defer();
+				if(!p)p={};
 				var argumentsList=[m,p,function(rst){
 					setTimeout(()=>{//实践经验:加setTimeout后再返回能充分利用异步来SPAPI的阻塞...
 						dfr.resolve(rst);
