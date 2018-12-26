@@ -1,15 +1,15 @@
 const logger=console;
-logger.log("before load SegfaultHandler");
-var SegfaultHandler = require('segfault-handler');
-logger.log("after load SegfaultHandler");
-
-SegfaultHandler.registerHandler("crash1.log"); // With no argument, SegfaultHandler will generate a generic log file name
-
-// Optionally specify a callback function for custom logging. This feature is currently only supported for Node.js >= v0.12 running on Linux.
-SegfaultHandler.registerHandler("crash2.log", function(signal, address, stack) {
-	// Do what you want with the signal, address, or stack (array)
-	// This callback will execute before the signal is forwarded on.
-});
+//logger.log("before load SegfaultHandler");
+//var SegfaultHandler = require('segfault-handler');
+//logger.log("after load SegfaultHandler");
+//
+//SegfaultHandler.registerHandler("crash1.log"); // With no argument, SegfaultHandler will generate a generic log file name
+//
+//// Optionally specify a callback function for custom logging. This feature is currently only supported for Node.js >= v0.12 running on Linux.
+//SegfaultHandler.registerHandler("crash2.log", function(signal, address, stack) {
+//	// Do what you want with the signal, address, or stack (array)
+//	// This callback will execute before the signal is forwarded on.
+//});
 
 //SegfaultHandler.causeSegfault(); 
 
@@ -34,10 +34,6 @@ if(!host_id) host_id=80;//Default 80
 port*=1;
 host_id*=1;
 
-if(!password) throw new Error('need /password=');
-
-var login_info = { host, port, license, app_id, user_id, password };
-
 q_sptrader.invoke('on','LoginReply',rt=>{
 	logger.log(".LoginReply.rt=",rt);
 });
@@ -47,7 +43,15 @@ q_sptrader.invoke('on','ConnectedReply',function(rt){
 	logger.log(".ConnectedReply.rt=",rt);
 });
 
+if(!password) throw new Error('need /password=');
+
+var login_info = { host, port, license, app_id, user_id, password };
+
 q_sptrader
+	.invoke('call','SPAPI_GetDllVersion',{test:new Date()})
+	.then( rst =>{
+		logger.log('debug SPAPI_GetDllVersion.rst=',rst);
+		return q_sptrader })
 	.invoke('call','SPAPI_SetLoginInfo',login_info)
 	.then(()=>{ return q_sptrader; })
 	.invoke('call','SPAPI_Login',{})
