@@ -1095,7 +1095,7 @@ METHOD_START_ONCALL(_call){
 		req_data->in=json::parse(json_stringify(isolate,in));
 		if(!callback.IsEmpty()){//ASYNC
 			rt->Set(v8::String::NewFromUtf8(isolate,"mode"), v8::String::NewFromUtf8(isolate,"ASYNC"));
-			req_data->callback.Reset(isolate, callback);//important
+			req_data->callback.Reset(isolate, callback);//req_data.callback := callback
 			req_data->seq=(++seq_count);
 			uv_work_t *req= new uv_work_t();
 			req->data=(void*)req_data;

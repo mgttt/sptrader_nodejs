@@ -9,64 +9,70 @@ const logger=console;
 //.on(m,cb)
 
 proc=null;
-
-fork_q = (n,opts,onMessage) =>{
-
-	if(!onMessage && typeof(opts)=="function"){
-		onMessage = opts;
-	}
-
-	const {fork} = require('child_process');
-	dfr=Q.defer();
-
-	opts = {env:{
-		//LD_PRELOAD:"libapiwrapper.so",
-		LD_LIBRARY_PATH:__dirname}
-	};
-	proc = fork(n, opts);
-
-	if(onMessage)
-		proc.on('message', onMessage);
-
-	//TODO onMessage('onError') onMessage('onExit')
-	proc.on('error',err => dfr.reject(err) );
-
-	proc.on('exit', errcode => {
-		dfr.reject(errcode)
-		if(onMessage){
-			onMessage('onExit',{errcode})
-		}
-
-		//fork again if child exit... to keep it alive
-		proc = fork(n)
-		//TODO write log
-	});
-
-	//_child_pool[proc.pid]=proc;
-	return dfr.promise;
-};
+proc_pid=0;
 
 var responseCallbacksPool = {};
 
 var msgId = (new Date()).getTime();
 
+const {fork} = require('child_process');
+
+const proc_file = "./sptrader_addon_proc";
+
+//TODO move inside func body later...
+var avatar={};
+
 module.exports= (()=>{
 
-	fork_q('./sptrader_addon_proc', msg=>{
-		//process.send(m);
-		logger.log('child proc .msg=',msg);
-	})
+	opts = {env:{
+		//LD_PRELOAD:"libapiwrapper.so",
+		LD_LIBRARY_PATH:__dirname}
+	};
 
-	//@avatar
-	var avatar={};
+	proc = fork(proc_file, opts);
+	proc_pid = proc.pid;
+
+	//if(onMessage)
+	proc.on('message', (msg={})=>{
+
+		var {responseId,responseData}=msg;
+
+		//logger.log("TODO DEBUG .message.msg=",responseId,responseData);
+
+		if(responseId){
+			var _cb = responseCallbacksPool[responseId];
+			if(_cb){
+				//logger.log("DEBUG cb.responseData=",responseData);
+				_cb(responseData);
+				if(_cb.time){
+					logger.log("DEBUG DELETE cb.time=",_cb.time);
+					responseCallbacksPool[responseId]=null;
+					delete responseCallbacksPool[responseId];
+				}else{
+					logger.log("DEBUG responseId,cb=",responseId,_cb);
+				}
+				return;
+			}
+		}
+		logger.log("TODO DEBUG .message.msg=",responseId,responseData);
+	});
+
+	proc.on('error',err =>{ logger.log('[',proc_pid,']error.err=',err); });
+
+	proc.on('exit', errcode => {
+		logger.log('[',proc_pid,']fork');
+		proc = fork(proc_file)
+	});
 
 	avatar.call_q = avatar.call = (m,p) => {
 
-		msg = {m,p};
+		var dfr = Q.defer();
 
-		logger.log('TODO sptrader.call(',m,p,')');
+		var msg = {m,p};
 
+		//@see on(message)
 		var cb = responseData => {
+			dfr.resolve(responseData);
 		};
 		msgId=(msgId + 1) % 1000000;
 
@@ -79,85 +85,39 @@ module.exports= (()=>{
 
 		msg.callbackId = callbackId;//{callbackId,m,p}
 
+		//TODO pack time.
 		responseCallbacksPool[callbackId] = cb;
 
+		//TODO...
+		setTimeout(()=>{
+			dfr.reject({errmsg:"TIMEOUT"});
+		},30000);
+
+		//logger.log('sptrader.call(',m,p,')',msg);
 		proc.send(msg);
 
-		//@~Q()
-		return Q();
+		//@~
+		return dfr.promise;
 	};
 
 	avatar.on = (m,cb)=>{
-		logger.log('TODO sptrader.call(',m,')');
+		logger.log("DEBUG buffer .on=",m);
+		responseCallbacksPool[m]=cb
 	};
-
 	return avatar;
-
-	//		logger.log('load default _remoteModule');
-	//		var ver=os.arch()+'-'+os.platform()+'-'+process.versions.modules;
-	//		//var avatar= require('../sptrader/SpTrader.'+ver+'.node');
-	//		var avatar= require('./SpTrader.'+ver+'.node');
-	//
-	//		avatar.call=function(m,p){
-	//			var dfr=Q.defer();
-	//			if(!p)p={};
-	//			var argumentsList=[m,p,function(rst){
-	//				setTimeout(()=>{//实践经验:加setTimeout后再返回能充分利用异步来SPAPI的阻塞...
-	//					dfr.resolve(rst);
-	//				},2);
-	//			}];
-	//			if(avatar._call){
-	//				if(!argumentsList) argumentsList={};//TMP FIX, need to fix c/c++ later...
-	//				//TODO 这里需要做一个 api_call_audit_log
-	//				avatar._call.apply(avatar,argumentsList);
-	//			}else{
-	//				throw new Error("not found _call() ???");
-	//			}
-	//			return dfr.promise;
-	//		};
-
-	//	var _callback_pool={};
-	//	//save the cb
-	//	avatar.on = (m,cb)=>( _callback_pool[m]=cb );
-	//	var _callback_for_on=function(o,d){
-	//		if(o){
-	//			var {data,on,seq} = o;
-	//			if(on){
-	//				if(_cb=_callback_pool[on]){
-	//					_cb(data);
-	//				}else{
-	//					logger.log("TODO on(",on,")",data);
-	//				}
-	//			}
-	//		}
-	//	};
-
-	//old detach ._on({data,on,seq});
-	//		avatar._on(o=>{setTimeout(()=>{_callback_for_on(o)},2);});
-	//		return avatar;
 })();
 
-tmp_loop = ()=>{
-
-	//gc();
-
-	//try{
-	//	responseCallbacks[msg.responseId]=null;
-	//	delete responseCallbacks[msg.responseId];
-	//	_gc();
-	//}catch(ex){console.log(ex);}
-
-	//var pid = process.pid;
-	//logger.log("child.pid=",pid);
-
-	////TMP
+//TODO
+gc=()=>{
+	//loop responseCallbacksPool check callTime and clear timeout 31
+	//	responseCallbacksPool[msg.responseId]=null;
+	//	delete responseCallbacksPool[msg.responseId];
 	//send_parent('checkin',new Date());
+	logger.log("TODO sptrader_addon.gc()");
+}
 
-	setTimeout(()=>{
-		tmp_loop()
-	},7777);
+gc_loop = ()=>{
+	try{ gc(); }catch(ex){console.log("gc.ex=",ex);}
+	setTimeout(()=>gc_loop(),7777);
 };
-
-tmp_loop();
-
-
+gc_loop();

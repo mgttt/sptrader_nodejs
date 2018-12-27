@@ -1,4 +1,5 @@
 const logger=console;
+
 //logger.log("before load SegfaultHandler");
 //var SegfaultHandler = require('segfault-handler');
 //logger.log("after load SegfaultHandler");
@@ -34,6 +35,10 @@ if(!host_id) host_id=80;//Default 80
 port*=1;
 host_id*=1;
 
+q_sptrader.invoke('on','Test',rt=>{
+	logger.log(".Test.rt=",rt);
+});
+
 q_sptrader.invoke('on','LoginReply',rt=>{
 	logger.log(".LoginReply.rt=",rt);
 });
@@ -50,15 +55,30 @@ var login_info = { host, port, license, app_id, user_id, password };
 q_sptrader
 	.invoke('call','SPAPI_GetDllVersion',{test:new Date()})
 	.then( rst =>{
-		logger.log('debug SPAPI_GetDllVersion.rst=',rst);
+		logger.log('SPAPI_GetDllVersion.rst=',rst);
 		return q_sptrader })
 	.invoke('call','SPAPI_SetLoginInfo',login_info)
-	.then(()=>{ return q_sptrader; })
+	.then((rst)=>{
+		logger.log('SPAPI_SetLoginInfo.rst=',rst);
+
+		//throw new Error("TMP EXIT............");
+		
+		if(rst && rst.rc==0) return q_sptrader;
+		throw new Error("SPAPI_SetLoginInfo.rst="+rst);
+	})
 	.invoke('call','SPAPI_Login',{})
 	.delay(3333)
+	.then((rst)=>{
+		logger.log('SPAPI_Login.rst=',rst);
+		if(rst && rst.rc==0) return q_sptrader;
+		throw new Error("SPAPI_Login.rst="+rst);
+	})
 	.then(()=>{ return q_sptrader; })
+	.delay(33333)
 	.invoke('call','SPAPI_GetLoginStatus',{user_id,host_id})
-	.delay(3333)
+	.fail(err=>{
+		logger.log('fail.rst=',err);
+	})
 	.done(rst=>{
 		logger.log('done.rst=',rst);
 		//if(rst&&rst.rc==3){
