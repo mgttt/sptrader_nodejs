@@ -25,11 +25,12 @@ var avatar={};
 module.exports= (()=>{
 
 	opts = {env:{
-		//LD_PRELOAD:"libapiwrapper.so",
-		LD_LIBRARY_PATH:__dirname}
-	};
+		LD_PRELOAD:"libapiwrapper.so",
+		LD_LIBRARY_PATH:__dirname
+	}};
 
-	proc = fork(proc_file, opts);
+	//proc = fork(proc_file, opts);
+	proc = fork(proc_file, [], opts);
 	proc_pid = proc.pid;
 
 	//if(onMessage)
