@@ -1,12 +1,11 @@
+// wrapper to call child proc
+//@{call,on}
+//.call(m,p,cb)
+//.on(m,cb)
+
 const Q=require('q');
 const os=require('os');
 const logger=console;
-
-// wrapper to call to child proc
-
-//OUT
-//.call(m,p,cb)
-//.on(m,cb)
 
 proc=null;
 proc_pid=0;
@@ -33,12 +32,8 @@ module.exports= (()=>{
 	proc = fork(proc_file, [], opts);
 	proc_pid = proc.pid;
 
-	//if(onMessage)
 	proc.on('message', (msg={})=>{
-
 		var {responseId,responseData}=msg;
-
-		//logger.log("TODO DEBUG .message.msg=",responseId,responseData);
 
 		if(responseId){
 			var _cb = responseCallbacksPool[responseId];
@@ -49,8 +44,6 @@ module.exports= (()=>{
 					logger.log("DEBUG DELETE cb.time=",_cb.time);
 					responseCallbacksPool[responseId]=null;
 					delete responseCallbacksPool[responseId];
-				}else{
-					logger.log("DEBUG responseId,cb=",responseId,_cb);
 				}
 				return;
 			}
@@ -97,7 +90,6 @@ module.exports= (()=>{
 		//logger.log('sptrader.call(',m,p,')',msg);
 		proc.send(msg);
 
-		//@~
 		return dfr.promise;
 	};
 
