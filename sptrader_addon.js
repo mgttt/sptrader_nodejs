@@ -30,33 +30,40 @@ module.exports= (()=>{
 
 	//proc = fork(proc_file, opts);
 	proc = fork(proc_file, [], opts);
+
 	proc_pid = proc.pid;
 
-	proc.on('message', (msg={})=>{
-		var {responseId,responseData}=msg;
+	proc
+		.on('message', (msg={})=>{
+			var {responseId,responseData}=msg;
 
-		if(responseId){
-			var _cb = responseCallbacksPool[responseId];
-			if(_cb){
-				//logger.log("DEBUG cb.responseData=",responseData);
-				_cb(responseData);
-				if(_cb.time){
-					logger.log("DEBUG DELETE cb.time=",_cb.time);
-					responseCallbacksPool[responseId]=null;
-					delete responseCallbacksPool[responseId];
+			if(responseId){
+				var _cb = responseCallbacksPool[responseId];
+				if(_cb){
+					//logger.log("DEBUG cb.responseData=",responseData);
+					_cb(responseData);
+					if(_cb.time){
+						logger.log("DEBUG DELETE cb.time=",_cb.time);
+						responseCallbacksPool[responseId]=null;
+						delete responseCallbacksPool[responseId];
+					}
+					return;
 				}
-				return;
 			}
-		}
-		logger.log("TODO DEBUG .message.msg=",responseId,responseData);
-	});
+			logger.log("TODO DEBUG .message.msg=",responseId,responseData);
+		})
+		.on('error',err =>{ logger.log('[',proc_pid,']error.err=',err); })
+		.on('exit', errcode => {
+			logger.log('[',proc_pid,']fork');
+			proc = fork(proc_file)
+		})
+	;
 
-	proc.on('error',err =>{ logger.log('[',proc_pid,']error.err=',err); });
-
-	proc.on('exit', errcode => {
-		logger.log('[',proc_pid,']fork');
-		proc = fork(proc_file)
-	});
+	//proc.on('error',err =>{ logger.log('[',proc_pid,']error.err=',err); });
+	//proc.on('exit', errcode => {
+	//	logger.log('[',proc_pid,']fork');
+	//	proc = fork(proc_file)
+	//});
 
 	avatar.call_q = avatar.call = (m,p) => {
 
@@ -95,7 +102,8 @@ module.exports= (()=>{
 
 	avatar.on = (m,cb)=>{
 		logger.log("DEBUG buffer .on=",m);
-		responseCallbacksPool[m]=cb
+		responseCallbacksPool[m]=cb;
+		return avatar;
 	};
 	return avatar;
 })();
