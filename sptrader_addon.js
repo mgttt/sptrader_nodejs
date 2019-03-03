@@ -59,12 +59,6 @@ module.exports= (()=>{
 		})
 	;
 
-	//proc.on('error',err =>{ logger.log('[',proc_pid,']error.err=',err); });
-	//proc.on('exit', errcode => {
-	//	logger.log('[',proc_pid,']fork');
-	//	proc = fork(proc_file)
-	//});
-
 	avatar.call_q = avatar.call = (m,p) => {
 
 		var dfr = Q.defer();
