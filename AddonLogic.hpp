@@ -65,7 +65,12 @@ class NODE_MODULE_LOGIC : public ApiProxyWrapperReply
 #include "uv_callback.hpp"
 uv_callback_t _uv_callback_on_ptr;
 int dynamic_call_counter = 0;
-#include "json.hpp" //https://github.com/nlohmann/json/releases/download/v2.1.1/json.hpp
+//https://github.com/nlohmann/json/releases
+#if NODE_MODULE_VERSION>57
+#include "json-3.5.0.hpp"
+#else
+#include "json-2.1.1.hpp"
+#endif
 using json = nlohmann::json;
 #include <iostream> //for cout << .... << endl
 #include <map>
@@ -173,9 +178,12 @@ inline v8::Handle<v8::Value> json_parse(v8::Isolate* isolate, std::string const&
 
 	//NOTES: TODO try-catch replace in new nodejs....
 //TODO if NODE<10...
+#if NODE_MODULE_VERSION>57
+	v8::TryCatch try_catch(isolate);
+#else
 	v8::TryCatch try_catch;
+#endif
 	v8::Local<v8::Value> result = parse->Call(theJSON, 1, &value);
-//TODO if NODE<10...
 	if (try_catch.HasCaught()) { result = try_catch.Exception(); }
 
 	return scope.Escape(result);

@@ -74,7 +74,7 @@ q_sptrader
 		throw new Error("SPAPI_Login.rst="+rst);
 	})
 	.then(()=>{ return q_sptrader; })
-	.delay(6666)
+	.delay(9999)
 	.invoke('call','SPAPI_GetLoginStatus',{user_id,host_id})
 	.fail(err=>{
 		logger.log('fail.rst=',err);
