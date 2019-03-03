@@ -2,7 +2,7 @@
 
 sptrader nodejs wrapper
 
-NOTES: ubuntu 16.04 passed, 18.04 still error! ( see error log below )
+NOTES: ubuntu 16.04 passed, 18.04 maybe not stable yet
 
 
 ```
@@ -14,7 +14,7 @@ q_sptrader.js
 	# docker (our built "cmptech/nodejs_sharessl_ubuntu:16.04")
 	docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh -c ". /node_env.sh && echo \$NODE_VERSION && LD_PRELOAD=/work/libapiwrapper.so /\$NODE_VERSION/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
 	docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh -c ". /node_env.sh && echo \$NODE_VERSION && /\$NODE_VERSION/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
-	
+	docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:18.04 sh -c ". /node_env.sh && echo \$NODE_VERSION && /\$NODE_VERSION/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
 
 # not ok:
 docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh
@@ -40,10 +40,7 @@ https://hub.docker.com/r/cmptech/nodejs_sharessl_ubuntu
 
 NOTES:
 branch 16.04 with node 8.X w/ openssl 1.0.X [WORKING]
-branch 18.04 with node latest w/ openssl 1.1.X+ [FAILED,
-AddonLogic.hpp needs fix...
-terminate called after throwing an instance of 'nlohmann::detail::type_error'
-]
+branch 18.04 with node latest w/ openssl 1.1.X+ [maybe not stable yet]
 ```
 
 
@@ -73,7 +70,7 @@ docker run -ti -v $PWD:/work/ -w /work/ cmptech/auto_alpine_glibc /work/alpine_n
   tz: '2018e' }
 
 docker run -ti -v $PWD:/work/ -w /work/ cmptech/auto_alpine_glibc sh -c "LD_PRELOAD=/work/libapiwrapper.so /work/alpine_node_latest/node-v8.15.1-linux-x64/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
-[seg fault]
+[seg fault]: not a share ssl node ....
 
 ```
 
