@@ -5,24 +5,33 @@ sptrader nodejs wrapper
 
 ```
 q_sptrader.js
+
 	# lnx
-	node test_version /host= /port= /license= /app_id= /user_id= /password=abcd0000 /host_id=
-	# mac
-	# docker run -ti -v $PWD:/work/ -w /work/ cmptech/auto_alpine_nodejs_baseline /work/alpine_node_latest/node -p 'process.versions'
-	
+	node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id=
+
+	# mac (our built docker "cmptech/nodejs_sharessl_ubuntu:16.04")
+	docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh -c ". /node_env.sh && echo \$NODE_VERSION && LD_PRELOAD=/work/libapiwrapper.so /\$NODE_VERSION/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
 	
 ```
 
-# mac (using docker)
+
+# NOTES: mac (using docker)
 
 NOTES:
 node:latest is 800MB+ which is too big, so we build our own.
 
 ## docker images
 
+* our ok docker image: cmptech/auto_ubuntuessential_nodejs_sharessl, which is built from source....
+```
+https://github.com/cmptech/auto_nodejs_sharessl_ubuntu
+https://hub.docker.com/r/cmptech/nodejs_sharessl_ubuntu
+```
+
+
 * alpine with glibc (20 MB / 54 MB)
 
-libapiwrapper.so needs glibc...
+libapiwrapper.so needs glibc... BUT... as the ssl is not shared, failed !!
 
 ```
 https://hub.docker.com/r/cmptech/auto_alpine_glibc
@@ -45,12 +54,18 @@ docker run -ti -v $PWD:/work/ -w /work/ cmptech/auto_alpine_glibc /work/alpine_n
   cldr: '34.0',
   tz: '2018e' }
 
+docker run -ti -v $PWD:/work/ -w /work/ cmptech/auto_alpine_glibc sh -c "LD_PRELOAD=/work/libapiwrapper.so /work/alpine_node_latest/node-v8.15.1-linux-x64/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
+[seg fault]
+
 ```
 
 * node:alpine - using musl not glibc...(not ok for libapiwrapper.so) (73 MB)
 
 ```
 docker run -ti node:alpine node -p process.versions
+
+docker run -ti -v $PWD:/work/ -w /work/ cmptech/auto_alpine_glibc sh -c "LD_PRELOAD=/work/libapiwrapper.so /work/alpine_node_latest/node -p \"require('./sptrader.old')()\""
+(seg fault)
 
 docker run -ti -v $PWD:/work/ -w /work/ node:alpine sh -c "LD_PRELOAD=/work/libapiwrapper.so node -p \"require('./sptrader.old')()\""
 Error loading shared library ld-linux-x86-64.so.2: No such file or directory (needed by /work/libapiwrapper.so)
