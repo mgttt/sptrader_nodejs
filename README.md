@@ -2,6 +2,8 @@
 
 sptrader nodejs wrapper
 
+NOTES: ubuntu 16.04 passed, 18.04 still error! (related to the openssl version ...)
+
 
 ```
 q_sptrader.js
