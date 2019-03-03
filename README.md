@@ -2,7 +2,7 @@
 
 sptrader nodejs wrapper
 
-NOTES: ubuntu 16.04 passed, 18.04 still error! (related to the openssl version ...)
+NOTES: ubuntu 16.04 passed, 18.04 still error! (related to the openssl in 18.04 version is too high that not for current libapiwrapper.so )
 
 
 ```
