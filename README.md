@@ -37,6 +37,13 @@ node:latest is 800MB+ which is toooo big, so we build our own (now 333MB).
 ```
 https://github.com/cmptech/auto_nodejs_sharessl_ubuntu
 https://hub.docker.com/r/cmptech/nodejs_sharessl_ubuntu
+
+NOTES:
+branch 16.04 with node 8.X w/ openssl 1.0.X [WORKING]
+branch 18.04 with node latest w/ openssl 1.1.X+ [FAILED,
+AddonLogic.hpp needs fix...
+terminate called after throwing an instance of 'nlohmann::detail::type_error'
+]
 ```
 
 

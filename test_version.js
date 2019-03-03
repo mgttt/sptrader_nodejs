@@ -52,6 +52,8 @@ if(!password) throw new Error('need /password=');
 
 var login_info = { host, port, license, app_id, user_id, password };
 
+var is_prod_init_done=false;
+
 q_sptrader
 	.invoke('call','SPAPI_GetDllVersion',{test:new Date()})
 	.then( rst =>{
@@ -61,8 +63,6 @@ q_sptrader
 	.then((rst)=>{
 		logger.log('SPAPI_SetLoginInfo.rst=',rst);
 
-		//throw new Error("TMP EXIT............");
-		
 		if(rst && rst.rc==0) return q_sptrader;
 		throw new Error("SPAPI_SetLoginInfo.rst="+rst);
 	})
@@ -74,13 +74,34 @@ q_sptrader
 		throw new Error("SPAPI_Login.rst="+rst);
 	})
 	.then(()=>{ return q_sptrader; })
-	.delay(33333)
+	.delay(6666)
 	.invoke('call','SPAPI_GetLoginStatus',{user_id,host_id})
 	.fail(err=>{
 		logger.log('fail.rst=',err);
 	})
 	.done(rst=>{
+		logger.log(process.versions);
 		logger.log('done.rst=',rst);
+
+		if(!is_prod_init_done){
+			return q_sptrader
+				.invoke('call','SPAPI_LoadInstrumentList')
+				.delay(4000).then(()=>q_sptrader)
+			//.invoke('call','SPAPI_GetInstrument')
+			//.then(rst=>{
+			//	if(rst)_tmp_log(o2s(rst.out));
+			//})
+				.invoke('call','SPAPI_LoadProductInfoListByCode',{inst_code:"HSI"})
+				.delay(4000).then(()=>q_sptrader)
+				.invoke('call','SPAPI_GetProduct')
+				.then(rst=>{
+					is_prod_init_done=true;
+					logger.log(rst);
+					//if(rst)_tmp_log(o2s(rst.out));
+					//return Q({STS:"OK",errmsg:"",type:"I",sleepTime:4444});
+				});
+		}
+
 		//if(rst&&rst.rc==3){
 		//	dfr.resolve({STS:"OK"});
 		//}else{

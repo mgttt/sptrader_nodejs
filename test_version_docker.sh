@@ -5,8 +5,8 @@
 if [ ! -n "$DKR_IMAGE" ]; then
 	#DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu_python
 	#DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu
-	#DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu:16.04
-	DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu
+	DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu:16.04
+	#DKR_IMAGE=cmptech/nodejs_sharessl_ubuntu
 	echo DKR_IMAGE default to $DKR_IMAGE
 fi
 
