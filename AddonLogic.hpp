@@ -211,7 +211,11 @@ void * after_worker_for_on_q(uv_callback_t *callback, void *data)
 				//v8::Local<v8::Context> contextA = v8::Context::New(isolate);
 				//v8::Local<v8::Value> argv[argc]={v8::JSON::Parse(contextA,v8::String::NewFromUtf8(isolate,qi.dump().c_str())).ToLocalChecked()};
 
+#if NODE_MODULE_VERSION>57
+				v8::Local<v8::Value> argv[argc]={json_parse(isolate,qi.dump(-1,' ',false,nlohmann::detail::error_handler_t::ignore).c_str())};
+#else
 				v8::Local<v8::Value> argv[argc]={json_parse(isolate,qi.dump().c_str())};
+#endif
 
 				callback->Call(isolate->GetCurrentContext()->Global(), argc, argv);
 			}
@@ -1026,7 +1030,11 @@ void worker_for_call(uv_work_t * req){
 		rst["errmsg"]="not found api:"+api;
 	}
 	rst["out"]=my_data->out;
+#if NODE_MODULE_VERSION>57
+	my_data->out_s=my_data->out.dump(-1,' ',false,nlohmann::detail::error_handler_t::ignore);
+#else
 	my_data->out_s=my_data->out.dump();
+#endif
 	my_data->out=NULL;
 	my_data->rst=rst;
 	rst=NULL;
@@ -1049,7 +1057,11 @@ void after_worker_for_call(uv_work_t * req,int status){
 	//v8::Local<v8::Value> argv[argc]={v8::JSON::Parse(v8::Context::New(isolate),
 	//		v8::String::NewFromUtf8(isolate,rst.dump().c_str())).ToLocalChecked()};
 
+#if NODE_MODULE_VERSION>57
+	v8::Local<v8::Value> argv[argc]={json_parse(isolate,rst.dump(-1,' ',false,nlohmann::detail::error_handler_t::ignore).c_str())};
+#else
 	v8::Local<v8::Value> argv[argc]={json_parse(isolate,rst.dump().c_str())};
+#endif
 
 	rst=NULL;
 
