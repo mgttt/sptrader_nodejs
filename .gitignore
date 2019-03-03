@@ -18,3 +18,4 @@ alpine_node_latest/npm
 node-v10.15.0-linux-x64
 alpine_node_latest/node-*
 glibc.pkg.tar.xz
+test_dont_upload.sh

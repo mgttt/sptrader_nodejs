@@ -25,8 +25,8 @@ copy_o2o(argo,argv2o(process.argv));
 
 var q_sptrader = require('./q_sptrader')();
 
-//test if any segfault
-const crypto=require('crypto');
+//test if any segfault:
+//const crypto=require('crypto');
 
 var { host, port, license, app_id, user_id, password, host_id } = argo;
 

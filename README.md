@@ -11,16 +11,25 @@ q_sptrader.js
 	# lnx
 	node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id=
 
-	# mac (our built docker "cmptech/nodejs_sharessl_ubuntu:16.04")
+	# docker (our built "cmptech/nodejs_sharessl_ubuntu:16.04")
 	docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh -c ". /node_env.sh && echo \$NODE_VERSION && LD_PRELOAD=/work/libapiwrapper.so /\$NODE_VERSION/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
+	docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh -c ". /node_env.sh && echo \$NODE_VERSION && /\$NODE_VERSION/bin/node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id"
 	
+
+# not ok:
+docker run -ti -v $PWD:/work/ -w /work/ cmptech/nodejs_sharessl_ubuntu:16.04 sh
+	export PATH=/work/alpine_node_latest/node-v8.15.1-linux-x64/bin:$PATH
+	node -v
+	LD_PRELOAD=/work/libapiwrapper.so node test_version /host= /port= /license= /app_id= /user_id= /password=test /host_id=
+	[seg fault]
 ```
 
 
 # NOTES: mac (using docker)
 
 NOTES:
-node:latest is 800MB+ which is too big, so we build our own.
+
+node:latest is 800MB+ which is toooo big, so we build our own (now 333MB).
 
 ## docker images
 
