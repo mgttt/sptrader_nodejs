@@ -28,7 +28,9 @@ var q_sptrader = require('./q_sptrader')();
 //test if any segfault:
 //const crypto=require('crypto');
 
-var { host, port, license, app_id, user_id, password, host_id } = argo;
+var { host, port, license, app_id, user_id, password, host_id, acc_no } = argo;
+
+if(!acc_no) acc_no = user_id;
 
 if(!host_id) host_id=80;//Default 80
 
@@ -54,6 +56,34 @@ var login_info = { host, port, license, app_id, user_id, password };
 
 var is_prod_init_done=false;
 
+/*
+	function GetBalance_Promise(){
+		var dfr=Q.defer();
+		var rt={STS:"OK"};
+		var user_id=getUserId();
+		Q_remoteModule
+			.invoke('call','SPAPI_GetAllAccBal',{user_id})
+			.then(rst=>{
+				if(rst){
+					rt.AllAccBal=rst.out;
+				}
+				//return rst;
+				return Q_remoteModule;
+			})
+			.invoke('call','SPAPI_GetAccInfo',{user_id})
+			.then(rst=>{
+				if(rst){
+					rt.AccInfo=rst.out;
+				}
+				return Q_remoteModule;
+			})
+			.done(rst=>{
+				dfr.resolve(rt);
+			});
+		return dfr.promise;
+	}
+*/
+
 q_sptrader
 	.invoke('call','SPAPI_GetDllVersion',{test:new Date()})
 	.then( rst =>{
@@ -74,6 +104,7 @@ q_sptrader
 		throw new Error("SPAPI_Login.rst="+rst);
 	})
 	.then(()=>{ return q_sptrader; })
+
 	.delay(9999)
 	.invoke('call','SPAPI_GetLoginStatus',{user_id,host_id})
 	.fail(err=>{
@@ -83,7 +114,25 @@ q_sptrader
 		logger.log(process.versions);
 		logger.log('done.rst=',rst);
 
-		if(!is_prod_init_done){
+		q_sptrader
+			.invoke('call','SPAPI_GetAccInfo',{user_id})
+			.done((rst)=>{
+				logger.log('SPAPI_GetAccInfo.rst=',rst);
+			})
+		
+		q_sptrader
+			.invoke('call','SPAPI_GetAllAccBal',{user_id})
+			.done((rst)=>{
+				logger.log('SPAPI_GetAllAccBal.rst=',rst);
+			})
+		
+		q_sptrader
+			.invoke('call','SPAPI_GetAllPos',{user_id})
+			.done((rst)=>{
+				logger.log('SPAPI_GetAllPos.rst=',rst);
+			})
+		
+		if(!is_prod_init_done && argo.test_prod_init){
 			return q_sptrader
 				.invoke('call','SPAPI_LoadInstrumentList')
 				.delay(4000).then(()=>q_sptrader)
