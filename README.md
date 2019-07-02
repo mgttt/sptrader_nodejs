@@ -123,3 +123,16 @@ $ docker run -ti cmptech/auto_alpine_latest_nodejs node -p process.versions
 ### alpine/node/docker
 
 sh prepare_alpine_node_docker.sh
+
+
+# KNOWLEDGE
+
+```
+//env:{ LD_PRELOAD:"libapiwrapper.so", LD_LIBRARY_PATH:__dirname }
+
+var spawn_again = ()=>{
+	const {fork} = require('child_process');
+	var opts = {detached:true, env:process.env};
+	return fork(__filename, process.argv, opts);
+};
+```
